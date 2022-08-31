@@ -116,3 +116,6 @@ function start-myshell
 
 }
    
+
+start-myshell -apiToken $apiToken -chat_id $chat_id
+
