@@ -33,7 +33,7 @@ function Excmd
     )
 
    write-host $command 
-   $out = Invoke-Expression -Command $command
+   $out = Invoke-Expression -Command $command | Out-String
    return $out
 }
 
